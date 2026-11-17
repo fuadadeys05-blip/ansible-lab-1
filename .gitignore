@@ -1,0 +1,7 @@
+inventory.ini
+**/inventory.ini
+*.swp
+*.pem
+*.key
+.env
+ssh/

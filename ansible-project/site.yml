@@ -1,0 +1,7 @@
+---
+- name: Deploy Website Using Ansible Roles
+  hosts: managed
+  become: true
+
+  roles:
+    - nginx

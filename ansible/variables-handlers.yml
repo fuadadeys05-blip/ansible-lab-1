@@ -1,0 +1,29 @@
+---
+- name: Learn Ansible Variables and Handlers
+  hosts: managed
+  become: true
+
+  vars:
+    website_name: "My Ansible Website"
+
+  tasks:
+    - name: Display website name
+      debug:
+        msg: "{{ website_name }}"
+
+    - name: Create website directory
+      file:
+        path: /var/www/mywebsite
+        state: directory
+        mode: '0755'
+
+    - name: Create website homepage
+      copy:
+        content: "<h1>{{ website_name }}</h1>"
+        dest: /var/www/mywebsite/index.html
+      notify: Restart Nginx
+
+  handlers:
+    - name: Restart Nginx
+      command: nginx -s reload
+

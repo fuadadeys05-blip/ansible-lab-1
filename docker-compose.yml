@@ -1,0 +1,68 @@
+services:
+  ansible-control:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ansible-control
+    hostname: ansible-control
+    volumes:
+      - ./ansible:/ansible
+      - ./ssh:/root/.ssh
+    networks:
+      - ansible-network
+    tty: true
+
+  managed-node-1:
+    image: ubuntu:24.04
+    container_name: managed-node-1
+    hostname: managed-node-1
+    command: >
+      bash -c "apt-get update &&
+      apt-get install -y openssh-server python3 sudo &&
+      mkdir -p /run/sshd &&
+      echo 'root:Ansible@123' | chpasswd &&
+      sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config &&
+      echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config &&
+      /usr/sbin/sshd -D"
+    networks:
+      - ansible-network
+
+  managed-node-2:
+    image: ubuntu:24.04
+    container_name: managed-node-2
+    hostname: managed-node-2
+    command: >
+      bash -c "apt-get update &&
+      apt-get install -y openssh-server python3 sudo &&
+      mkdir -p /run/sshd &&
+      echo 'root:Ansible@123' | chpasswd &&
+      sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config &&
+      echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config &&
+      /usr/sbin/sshd -D"
+    networks:
+      - ansible-network
+
+  semaphore:
+    image: semaphoreui/semaphore:v2.19.12
+    container_name: ansible-gui
+    ports:
+      - "3000:3000"
+    environment:
+      SEMAPHORE_DB_DIALECT: sqlite
+      SEMAPHORE_DB_PATH: /var/lib/semaphore
+      SEMAPHORE_ADMIN: fuad
+      SEMAPHORE_ADMIN_PASSWORD: Admin@123
+      SEMAPHORE_ADMIN_NAME: FuadCode
+      SEMAPHORE_ADMIN_EMAIL: fuad@localhost
+      SEMAPHORE_ACCESS_KEY_ENCRYPTION: "BnOWpipefdikxo+Yk+vbYT5btm67p0HJSEOaXEONkuA="
+    volumes:
+      - semaphore-data:/var/lib/semaphore
+    networks:
+      - ansible-network
+
+networks:
+  ansible-network:
+    driver: bridge
+
+volumes:
+  semaphore-data:

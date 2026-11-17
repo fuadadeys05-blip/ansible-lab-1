@@ -1,0 +1,17 @@
+---
+- name: My First Ansible Playbook
+  hosts: managed
+  become: true
+
+  tasks:
+    - name: Display a welcome message
+      debug:
+        msg: "Hello! Ansible is managing this server."
+
+    - name: Display server hostname
+      command: hostname
+
+    - name: Check server uptime
+      command: uptime
+
+
